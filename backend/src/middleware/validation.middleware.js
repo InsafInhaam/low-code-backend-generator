@@ -16,7 +16,7 @@ export const validateRegister = [
 ];
 
 export const validateLogin = [
-  body("emnail").isEmail().withMessage("Invalid email format"),
+  body("email").isEmail().withMessage("Invalid email format"),
   body("password").notEmpty().withMessage("Password is required"),
   (req, res, next) => {
     const errors = validationResult(req);

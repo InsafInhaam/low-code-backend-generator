@@ -23,8 +23,8 @@ model Field {
   id      Int    @id @default(autoincrement())
   name    String
   type    String
-  model   Model  @relation(fields: [modelId], references: [id], onDelete: Cascade)
   modelId Int
+  model   Model  @relation(fields: [modelId], references: [id], onDelete: Cascade)
 }
 
 model User {
@@ -34,3 +34,16 @@ model User {
   password String
   role     String @default("user")
 }
+
+    model customers {
+      id    Int    @id @default(autoincrement())
+      title String
+  price Float
+  stock Int
+    }
+    model Products {
+      id    Int    @id @default(autoincrement())
+      title String
+  price Float
+  stock Int
+    }

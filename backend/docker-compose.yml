@@ -1,30 +1,32 @@
-version: '3.8'
+version: "3.8"
 
 services:
   mysql:
     image: mysql:8.0
-    container_name: mycms-mysql
+    container_name: my_mysql
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: mycms
-      MYSQL_USER: user
-      MYSQL_PASSWORD: password
+      MYSQL_USER: root
+      MYSQL_PASSWORD: dC2WuYMstZ
     ports:
-      - "3305:3305"
+      - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
 
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
-    container_name: mycms-phpmyadmin
+    container_name: my_phpmyadmin
     restart: always
+    depends_on:
+      - mysql
     environment:
-      PMA_HOST: mycms-mysql  # Change from 'mysql' to 'mycms-mysql'
+      PMA_HOST: mysql
       PMA_USER: root
       PMA_PASSWORD: root
     ports:
-      - "8081:81"
+      - "8080:80"
 
 volumes:
   mysql_data:

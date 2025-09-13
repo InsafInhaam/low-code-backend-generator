@@ -1,16 +1,27 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import prisma from "../config/db.js";
+import pool from "../config/db.js";
 
 export const registerUser = async (req, res) => {
   const { name, email, password, role } = req.body;
 
   try {
+    const [existingUser] = await pool.query(
+      "SELECT * FROM users WHERE email = ?",
+      email
+    );
+    if (existingUser.length > 0) {
+      return res
+        .status(400)
+        .json({ success: false, error: "Email already in use." });
+    }
+
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const user = await prisma.user.create({
-      data: { name, email, password: hashedPassword, role: role || "user" },
-    });
+    await pool.query(
+      "INSERT INTO users(name, email, password, role) VALUES (?, ?, ?, ?)",
+      [name, email, hashedPassword, role || "user"]
+    );
 
     res
       .status(201)
@@ -24,12 +35,16 @@ export const loginUser = async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    const user = await prisma.user.findUnique({ where: { email } });
+    const [users] = await pool.query("SELECT * FROM users WHERE email = ?", [email]);
+    if(users.length === 0){
+      return res.status(401).json({ success: false, error: "Invalid credentials."});
+    }
 
-    if (!user || !(await bcrypt.compare(password, user.password))) {
-      return res
-        .status(401)
-        .json({ success: false, error: "Invalid Credentials" });
+    const user = users[0];
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if(!isMatch) {
+      return res.status(401).json({success: false, error: "Invalid credentials." });
     }
 
     const token = jwt.sign(
